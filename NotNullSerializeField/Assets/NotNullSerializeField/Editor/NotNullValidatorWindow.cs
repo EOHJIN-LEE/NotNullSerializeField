@@ -77,7 +77,7 @@ namespace JinStudio.NotNull
         private void DrawLanguageSetting()
         {
             EditorGUI.BeginChangeCheck();
-            var newLangIndex = EditorGUILayout.Popup("언어 설정 (Language)", (int)NotNullValidatorSettings.Language, _languageDisplayOptions);
+            var newLangIndex = EditorGUILayout.Popup("Language", (int)NotNullValidatorSettings.Language, _languageDisplayOptions);
             if (EditorGUI.EndChangeCheck())
             {
                 NotNullValidatorSettings.SaveLanguage((DisplayLanguage)newLangIndex);
