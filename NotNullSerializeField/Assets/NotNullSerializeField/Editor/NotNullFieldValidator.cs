@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System; // NonSerializedAttribute를 위해 추가
+using System;
 
 namespace JinStudio.NotNull
 {
@@ -15,8 +15,7 @@ namespace JinStudio.NotNull
         public ValidationResult ValidateAllOpenScenes()
         {
             var result = new ValidationResult();
-            var sceneCount = SceneManager.sceneCount;
-            for (var i = 0; i < sceneCount; i++)
+            for (var i = 0; i < SceneManager.sceneCount; i++)
             {
                 var scene = SceneManager.GetSceneAt(i);
                 if (scene.isLoaded && scene.IsValid())
@@ -45,7 +44,7 @@ namespace JinStudio.NotNull
                 .ToList();
             return ValidateScenesFromPathList(allScenePaths);
         }
-
+        
         private ValidationResult ValidateScenesFromPathList(List<string> scenePaths)
         {
             var finalResult = new ValidationResult();
@@ -55,17 +54,10 @@ namespace JinStudio.NotNull
                 return finalResult;
             }
 
-            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo())
-            {
-                finalResult.IsCancelled = true;
-                return finalResult;
-            }
-
-            var originalSceneSetup = EditorSceneManager.GetSceneManagerSetup();
             var progressBarTitle = NotNullLocalization.Get(NotNullLocalization.StringKey.ProgressBar_Title);
             var progressBarInfoFormat = NotNullLocalization.Get(NotNullLocalization.StringKey.ProgressBar_Info);
-
-            try
+            
+            try //기존의 씬의 데이터를 놔두기 위해서 Additive로 체크
             {
                 for (var i = 0; i < scenePaths.Count; i++)
                 {
@@ -73,14 +65,26 @@ namespace JinStudio.NotNull
                     var sceneName = System.IO.Path.GetFileNameWithoutExtension(scenePath);
                     var progressBarInfo = string.Format(progressBarInfoFormat, sceneName);
                     EditorUtility.DisplayProgressBar(progressBarTitle, progressBarInfo, (float)i / scenePaths.Count);
-                    var scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Single);
+                    
+                    var scene = SceneManager.GetSceneByPath(scenePath);
+                    var wasAlreadyLoaded = scene.isLoaded;
+                    
+                    if (!wasAlreadyLoaded)
+                    {
+                        scene = EditorSceneManager.OpenScene(scenePath, OpenSceneMode.Additive);
+                    }
+
                     ValidateScene(scene, finalResult);
+                    
+                    if (!wasAlreadyLoaded)
+                    {
+                        EditorSceneManager.CloseScene(scene, true);
+                    }
                 }
             }
             finally
             {
                 EditorUtility.ClearProgressBar();
-                EditorSceneManager.RestoreSceneManagerSetup(originalSceneSetup);
             }
             return finalResult;
         }
@@ -97,51 +101,35 @@ namespace JinStudio.NotNull
             }
         }
 
-        /// <summary>
-        /// 단일 MonoBehaviour의 모든 필드를 검사하는 '하이브리드' 방식의 최종 메서드입니다.
-        /// </summary>
         private void ValidateFieldsOfBehaviour(MonoBehaviour behaviour, Scene scene, ValidationResult result)
         {
-            // SerializedObject를 생성하여 직렬화된 데이터에 접근합니다.
             var serializedObject = new SerializedObject(behaviour);
             const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
             var fields = behaviour.GetType().GetFields(flags);
 
             foreach (var field in fields)
             {
-                // [NotNull] 속성이 없으면 건너뜁니다.
                 if (!field.IsDefined(typeof(NotNull), false)) continue;
-                // Unity 오브젝트 타입이 아니면 건너뜁니다.
                 if (!typeof(UnityEngine.Object).IsAssignableFrom(field.FieldType)) continue;
 
-                bool isSerialized = (field.IsPublic && !field.IsDefined(typeof(NonSerializedAttribute), false)) ||
+                var isSerialized = (field.IsPublic && !field.IsDefined(typeof(NonSerializedAttribute), false)) ||
                                     field.IsDefined(typeof(SerializeField), true);
 
-                bool isNull = false;
+                var isNull = false;
                 
-                // 필드가 직렬화 대상인지 여부에 따라 다른 방식으로 null을 체크합니다.
                 if (isSerialized)
                 {
-                    // 직렬화 필드: SerializedProperty를 통해 값을 확인 (가장 안정적)
                     var property = serializedObject.FindProperty(field.Name);
                     if (property != null && property.propertyType == SerializedPropertyType.ObjectReference)
                     {
-                        if (property.objectReferenceValue == null)
-                        {
-                            isNull = true;
-                        }
+                        if (property.objectReferenceValue == null) isNull = true;
                     }
                 }
                 else
                 {
-                    // 비직렬화 필드: 리플렉션을 통해 값을 확인
-                    if (field.GetValue(behaviour) == null)
-                    {
-                        isNull = true;
-                    }
+                    if (field.GetValue(behaviour) == null) isNull = true;
                 }
 
-                // isNull 플래그를 사용하여 최종적으로 에러를 처리합니다.
                 if (isNull)
                 {
                     ProcessValidationError(field, behaviour, scene, result);
