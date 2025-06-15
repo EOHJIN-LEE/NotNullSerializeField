@@ -1,135 +1,147 @@
+# NotNullSerializeField
+
 [日本語](#j) | [English](#e) | [한국어](#k)
 
-## <a id="j"></a>日本語
-概要
-このリポジトリには、Unityプロジェクトで使用するために作成されたカスタム属性 [NotNull] と、それに関連するエディタ拡張機能が含まれています。このツールは、Unityのインスペクター上で [NotNull] 属性が適用されたフィールドが意図せずnull参照になるのを防ぎ、開発中に潜在的なNullReferenceExceptionを早期に発見することを目的としています。
+---
 
-主な機能
-[NotNull] 属性: Unityの SerializeField を持つフィールドに適用することで、インスペクター上でnull値を設定しようとした際に警告を表示します。
-NotNull検証ウィンドウ: プロジェクト全体または特定範囲のシーンに存在する、[NotNull] 属性が付与されたにもかかわらずnullになっているフィールドを一覧表示するエディタウィンドウを提供します。
-プレイモード突入防止機能: 設定により、[NotNull] 検証でエラーが検出された場合に、プレイモードへの移行を自動的にブロックする機能を提供します。
-使い方
-コードのインポート:
+<a id="j"></a>
+## 🇯🇵 日本語
 
-このリポジトリのすべてのスクリプトをUnityプロジェクトの Assets フォルダ内の適切な場所にコピーします。
-[NotNull] 属性の適用:
+### 概要
+このリポジトリは、Unityプロジェクトで `null`参照によるエラーを未然に防ぐための、シンプルで強力なエディタ拡張ツールです。`[NotNull]` 属性を付けるだけで、インスペクター上で必須のフィールドが空になるのを防ぎ、開発効率を向上させます。
 
-Unityスクリプト内で、null参照を許容したくない SerializeField を持つフィールドの上に [NotNull] 属性を追加します。
-C#
+### ✨ 主な機能
+-   **`[NotNull]` 属性**: `SerializeField` を持つフィールドに付けることで、インスペクター上でnull値を許容しないようにします。
+-   **NotNull検証ウィンドウ**: プロジェクト内の全シーンを対象に、`[NotNull]` 属性が付いているにもかかわらず値が設定されていないフィールドを一括で検索し、一覧表示します。
+-   **プレイモード突入防止**: 検証でエラーが一つでも見つかった場合、プレイモードへの移行を自動的にブロックし、致命的なランタイムエラーを防ぎます。
 
-using UnityEngine;
-using JinStudio.NotNull;
+### 📖 使い方
 
-public class MyScript : MonoBehaviour
-{
-    [NotNull]
-    public Transform playerStartPoint;
+1.  **コードのインポート**:
+    -   このリポジトリのスクリプトをUnityプロジェクトの `Assets` フォルダにインポートします。
 
-    [SerializeField] [NotNull]
-    private Camera mainCamera;
-}
-NotNull検証ウィンドウの使用:
+2.  **`[NotNull]` 属性の適用**:
+    -   nullを許容したくないフィールドの上に `[NotNull]` 属性を追加します。
+        ```csharp
+        using UnityEngine;
+        using JinStudio.NotNull;
 
-<img width="1140" alt="image" src="https://github.com/user-attachments/assets/43e426d7-d498-44a5-89fe-6f9f9a6284f5" />
+        public class MyPlayer : MonoBehaviour
+        {
+            [NotNull]
+            public Transform playerSpawnPoint;
 
-Unityエディタのメニューから Tools > JinStudio > NotNull Attribute Setting を選択すると、NotNull検証ウィンドウが開きます。
-ウィンドウ内で検証範囲（現在のオープンシーン、ビルド設定に含まれるシーン、プロジェクトの全シーン）を選択し、検証を実行 ボタンをクリックします。
-エラーが発見された場合、ウィンドウに一覧が表示され、各項目の「追跡」ボタンで該当オブジェクトに直接移動できます。
-プレイモード突入防止機能の有効化:
+            [SerializeField] [NotNull]
+            private Rigidbody playerRigidbody;
+        }
+        ```
 
-NotNull検証ウィンドウ内で「プレイモード移行防止を有効にする」チェックボックスをオンにすると、プレイモードに移行する前に自動的にNotNull検証が実行されます。
-エラーが検出された場合、プレイモードへの移行はキャンセルされ、検証ウィンドウに結果が表示されます。
-注意事項
-[NotNull] 属性は、UnityEngine.Object を継承する型（例: GameObject, Transform, Component など）のフィールドに対してのみ有効です。
-このツールは開発時のサポートを目的としており、ビルド時には影響を与えません。
-ライセンス
-このプロジェクトはMITライセンスの下で公開されています。詳細は LICENSE ファイルをご覧ください。
+3.  **NotNull検証ウィンドウの使用**:
+    -   Unityエディタのメニュー `Tools > JinStudio > NotNull Attribute Setting` から検証ウィンドウを開きます。
+    -   **検証範囲**と**言語**、**プレイモード防止機能**の有効/無効を設定できます。
+    -   `検証実行` ボタンでいつでも手動でチェックできます。
+    -   エラーリストの `追跡` ボタンを押すと、該当のゲームオブジェクトがHierarchyでハイライトされます。
+    ![image](https://github.com/user-attachments/assets/eaebc66f-2f71-4587-b4b5-24c3f38ac46a)
 
+### ⚠️ 注意事項
+-   `[NotNull]` 属性は、`UnityEngine.Object` を継承する型（`GameObject`, `Transform`, `Component` など）のフィールドに対してのみ有効です。
+-   このツールは開発時のエディタ専用機能であり、ビルドされたゲームのパフォーマンスには一切影響を与えません。
 
-## <a id="e"></a>English
-Overview
-This repository contains a custom attribute [NotNull] and related editor extensions designed for use in Unity projects. This tool aims to prevent unintentionally null references in fields with the [NotNull] attribute in the Unity Inspector, helping to catch potential NullReferenceExceptions early in development.
+### 📄 ライセンス
+このプロジェクトはMITライセンスの下で公開されています。詳細は [LICENSE](LICENSE) ファイルをご覧ください。
 
-Key Features
-[NotNull] Attribute: By applying this attribute to fields with SerializeField, it displays a warning in the Inspector when attempting to set a null value.
-NotNull Validation Window: Provides an editor window that lists all fields with the [NotNull] attribute that are currently null within the entire project or a specified scope of scenes.
-Play Mode Prevention: Offers an optional feature to automatically block the transition to Play Mode if NotNull validation detects any errors.
-How to Use
-Importing the Code:
+---
 
-Copy all the scripts from this repository into an appropriate location within the Assets folder of your Unity project.
-Applying the [NotNull] Attribute:
+<a id="e"></a>
+## 🇬🇧 English
 
-In your Unity scripts, add the [NotNull] attribute above any SerializeField field where you do not want null references to be allowed.
-C#
+### Overview
+This repository provides a simple yet powerful editor extension tool for Unity designed to prevent errors caused by `null` references. By simply using the `[NotNull]` attribute, you can enforce required fields in the inspector and improve your development workflow.
 
-using UnityEngine;
-using JinStudio.NotNull;
+### ✨ Key Features
+-   **`[NotNull]` Attribute**: Apply to `SerializeField` fields to disallow null values in the inspector.
+-   **NotNull Validation Window**: Scans your entire project for fields that have the `[NotNull]` attribute but are unassigned, listing them all in one place.
+-   **Play Mode Prevention**: Automatically blocks you from entering Play Mode if any validation errors are found, preventing critical runtime errors.
 
-public class MyScript : MonoBehaviour
-{
-    [NotNull]
-    public Transform playerStartPoint;
+### 📖 How to Use
 
-    [SerializeField] [NotNull]
-    private Camera mainCamera;
-}
-Using the NotNull Validation Window:
+1.  **Importing the Code**:
+    -   Import the scripts from this repository into the `Assets` folder of your Unity project.
 
-From the Unity editor menu, select Tools > JinStudio > NotNull Attribute Setting to open the NotNull Validation Window.
-In the window, select the validation scope (Current Open Scenes, Scenes in Build Settings, or All Project Scenes) and click the Run Validation button.
-If any errors are found, a list will be displayed in the window. You can navigate directly to the object via the 'Go To' button for each item.
-Enabling Play Mode Prevention:
+2.  **Applying the `[NotNull]` Attribute**:
+    -   Add the `[NotNull]` attribute above any field you don't want to be null.
+        ```csharp
+        using UnityEngine;
+        using JinStudio.NotNull;
 
-In the NotNull Validation Window, check the 'Enable Play Mode Blocker' checkbox to enable automatic NotNull validation before entering Play Mode.
-If errors are detected, the transition to Play Mode will be canceled, and the results will be displayed in the Validation Window.
-Notes
-The [NotNull] attribute is only effective for fields whose type inherits from UnityEngine.Object (e.g., GameObject, Transform, Component, etc.).
-This tool is intended for development-time support and does not affect the final build.
-License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+        public class MyPlayer : MonoBehaviour
+        {
+            [NotNull]
+            public Transform playerSpawnPoint;
 
+            [SerializeField] [NotNull]
+            private Rigidbody playerRigidbody;
+        }
+        ```
 
+3.  **Using the NotNull Validation Window**:
+    -   Open the validation window from the Unity editor menu: `Tools > JinStudio > NotNull Attribute Setting`.
+    -   You can configure the **Validation Scope**, **Language**, and enable/disable the **Play Mode Blocker**.
+    -   Click the `Run Validation` button to perform a manual check at any time.
+    -   Click the `Go To` button in the error list to highlight the corresponding GameObject in the Hierarchy.
+    ![image](https://github.com/user-attachments/assets/eaebc66f-2f71-4587-b4b5-24c3f38ac46a)
 
-## <a id="k"></a>한국어
-개요
-이 레포지토리에는 유니티 프로젝트에서 사용하기 위해 만들어진 사용자 정의 속성 [NotNull]과 관련된 에디터 확장 기능이 포함되어 있습니다. 이 도구는 유니티 인스펙터에서 [NotNull] 속성이 적용된 필드가 의도치 않게 null 참조가 되는 것을 방지하고, 개발 중에 잠재적인 NullReferenceException을 조기에 발견하는 것을 목적으로 합니다.
+### ⚠️ Notes
+-   The `[NotNull]` attribute is only effective for fields of types that inherit from `UnityEngine.Object` (e.g., `GameObject`, `Transform`, `Component`).
+-   This tool is an editor-only utility for development support and has zero impact on your built game's performance.
 
-주요 기능
-[NotNull] 속성: 유니티의 SerializeField를 가진 필드에 적용하여, 인스펙터 상에서 null 값을 설정하려고 할 때 경고를 표시합니다.
-NotNull 검증 창: 프로젝트 전체 또는 특정 범위의 씬에 존재하는, [NotNull] 속성이 부여되었음에도 불구하고 null이 된 필드를 목록으로 표시하는 에디터 창을 제공합니다.
-플레이 모드 진입 방지 기능: 설정에 따라, [NotNull] 검증에서 오류가 감지되었을 경우, 플레이 모드로의 전환을 자동으로 막는 기능을 제공합니다.
-사용 방법
-코드 임포트:
+### 📄 License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
-이 레포지토리의 모든 스크립트를 유니티 프로젝트의 Assets 폴더 내 적절한 위치에 복사합니다.
-[NotNull] 속성 적용:
+---
 
-유니티 스크립트 내에서, null 참조를 허용하고 싶지 않은 SerializeField를 가진 필드 위에 [NotNull] 속성을 추가합니다.
-C#
+<a id="k"></a>
+## 🇰🇷 한국어
 
-using UnityEngine;
-using JinStudio.NotNull;
+### 개요
+이 리포지토리는 유니티 프로젝트에서 `null` 참조로 인한 오류를 미연에 방지하기 위한, 간단하고 강력한 에디터 확장 도구입니다. `[NotNull]` 속성을 붙이는 것만으로 인스펙터에서 필수 필드가 비어있는 것을 막고 개발 효율을 향상시킬 수 있습니다.
 
-public class MyScript : MonoBehaviour
-{
-    [NotNull]
-    public Transform playerStartPoint;
+### ✨ 주요 기능
+-   **`[NotNull]` 속성**: `SerializeField`를 가진 필드에 적용하여, 인스펙터에서 null 값을 허용하지 않도록 합니다.
+-   **NotNull 검증 창**: 프로젝트 내 모든 씬을 대상으로, `[NotNull]` 속성이 붙어있지만 값이 할당되지 않은 필드를 일괄적으로 검색하고 목록으로 보여줍니다.
+-   **플레이 모드 진입 방지**: 검증 시 오류가 하나라도 발견되면 플레이 모드 진입을 자동으로 차단하여, 치명적인 런타임 에러를 예방합니다.
 
-    [SerializeField] [NotNull]
-    private Camera mainCamera;
-}
-NotNull 검증 창 사용:
+### 📖 사용 방법
 
-유니티 에디터 메뉴에서 Tools > JinStudio > NotNull Attribute Setting을 선택하면 NotNull 검증 창이 열립니다.
-창 내에서 검증 범위(현재 열린 씬, 빌드 설정의 씬, 프로젝트의 모든 씬)를 선택하고 검증 실행 버튼을 클릭합니다.
-오류가 발견되면 창에 목록이 표시되며, 각 항목의 '추적' 버튼을 통해 해당 오브젝트로 바로 이동할 수 있습니다.
-플레이 모드 진입 방지 기능 활성화:
+1.  **코드 임포트**:
+    -   이 리포지토리의 스크립트들을 유니티 프로젝트의 `Assets` 폴더로 임포트합니다.
 
-NotNull 검증 창 내에서 '플레이 모드 진입 방지 활성화' 체크 박스를 켜면, 플레이 모드로 들어가기 전에 자동으로 검증이 실행됩니다.
-오류가 감지되면 플레이 모드 진입이 취소되고 검증 창에 결과가 표시됩니다.
-주의사항
-[NotNull] 속성은 UnityEngine.Object를 상속하는 타입(예: GameObject, Transform, Component 등)의 필드에 대해서만 유효합니다.
-이 도구는 개발 중 지원을 목적으로 하며, 실제 빌드된 게임에는 영향을 주지 않습니다.
-라이선스
-이 프로젝트는 MIT 라이선스 하에 공개되어 있습니다. 자세한 내용은 LICENSE 파일을 참조하십시오.
+2.  **`[NotNull]` 속성 적용**:
+    -   null을 허용하고 싶지 않은 필드 위에 `[NotNull]` 속성을 추가합니다.
+        ```csharp
+        using UnityEngine;
+        using JinStudio.NotNull;
+
+        public class MyPlayer : MonoBehaviour
+        {
+            [NotNull]
+            public Transform playerSpawnPoint;
+
+            [SerializeField] [NotNull]
+            private Rigidbody playerRigidbody;
+        }
+        ```
+
+3.  **NotNull 검증 창 사용**:
+    -   유니티 에디터 메뉴의 `Tools > JinStudio > NotNull Attribute Setting`을 통해 검증 창을 엽니다.
+    -   **검증 범위**, **언어**, **플레이 모드 방지 기능**의 활성화 여부를 설정할 수 있습니다.
+    -   `검증 실행` 버튼으로 언제든지 수동 검사를 할 수 있습니다.
+    -   에러 목록의 `추적` 버튼을 누르면 해당 게임오브젝트가 하이어라키에서 하이라이트됩니다.
+    ![image](https://github.com/user-attachments/assets/eaebc66f-2f71-4587-b4b5-24c3f38ac46a)
+
+### ⚠️ 주의사항
+-   `[NotNull]` 속성은 `UnityEngine.Object`를 상속하는 타입(`GameObject`, `Transform`, `Component` 등)의 필드에 대해서만 유효합니다.
+-   이 도구는 개발을 보조하는 에디터 전용 기능으로, 빌드된 게임의 성능에 전혀 영향을 주지 않습니다.
+
+### 📄 라이선스
+이 프로젝트는 MIT 라이선스 하에 공개되어 있습니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하십시오.
