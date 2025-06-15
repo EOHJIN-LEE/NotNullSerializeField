@@ -19,7 +19,7 @@ namespace JinStudio.NotNull
         private string[] _scopeDisplayOptions;
         private string[] _languageDisplayOptions;
 
-        [MenuItem("Tools/JinStudio/NotNull Attribute Setting")]
+        [MenuItem("Extensions/JinStudio/NotNull Attribute Setting")]
         public static void ShowWindow()
         {
             var window = GetWindow<NotNullValidatorWindow>();
