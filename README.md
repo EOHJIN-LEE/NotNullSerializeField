@@ -30,6 +30,8 @@ public class MyScript : MonoBehaviour
 }
 NotNull検証ウィンドウの使用:
 
+<img width="1140" alt="image" src="https://github.com/user-attachments/assets/43e426d7-d498-44a5-89fe-6f9f9a6284f5" />
+
 Unityエディタのメニューから Tools > JinStudio > NotNull Attribute Setting を選択すると、NotNull検証ウィンドウが開きます。
 ウィンドウ内で検証範囲（現在のオープンシーン、ビルド設定に含まれるシーン、プロジェクトの全シーン）を選択し、検証を実行 ボタンをクリックします。
 エラーが発見された場合、ウィンドウに一覧が表示され、各項目の「追跡」ボタンで該当オブジェクトに直接移動できます。
